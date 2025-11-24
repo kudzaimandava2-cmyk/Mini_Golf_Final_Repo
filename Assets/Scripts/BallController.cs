@@ -4,7 +4,9 @@ public class BallController : MonoBehaviour
 {
     public float maxPower;
     public float changeAngleSpeed;
+    public float lineLength;
 
+    private LineRenderer line;
     private Rigidbody ball;
     private float angle;
 
@@ -12,6 +14,7 @@ public class BallController : MonoBehaviour
     {
         ball = GetComponent<Rigidbody>();
         ball.maxAngularVelocity = 1000;
+        line = GetComponent<LineRenderer>();
     }
 
     void Update()
@@ -31,6 +34,7 @@ public class BallController : MonoBehaviour
         {
 
         }
+        UpdateLinePositions();
     }
 
     private void ChangeAngle(int direction)
@@ -38,4 +42,10 @@ public class BallController : MonoBehaviour
         angle += changeAngleSpeed * Time.deltaTime * direction;
     }
 
+
+    private void UpdateLinePositions()
+    {
+        line.SetPosition(0, transform.position);
+        line.SetPosition(1, transform.position + Quaternion.Euler(0, angle, 0) * Vector3.forward * lineLength);
+    }
 }
