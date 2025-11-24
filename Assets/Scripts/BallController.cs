@@ -32,7 +32,7 @@ public class BallController : MonoBehaviour
         //Power Up
         if (Input.GetKeyUp(KeyCode.Space))
         {
-
+            Putt();
         }
         UpdateLinePositions();
     }
@@ -47,5 +47,10 @@ public class BallController : MonoBehaviour
     {
         line.SetPosition(0, transform.position);
         line.SetPosition(1, transform.position + Quaternion.Euler(0, angle, 0) * Vector3.forward * lineLength);
+    }
+
+    private void Putt()
+    {
+        ball.AddForce(Quaternion.Euler(0, angle, 0) * Vector3.forward * maxPower, ForceMode.Impulse);
     }
 }
