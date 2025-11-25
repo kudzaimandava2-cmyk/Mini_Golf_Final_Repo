@@ -12,7 +12,8 @@ public class LevelManager : MonoBehaviour
 
     void Start()
     {
-        playerRecord = GameObject.Find("Player Record").GetComponent<PlayerRecord>();
+        playerRecord = GameObject.Find("Player Record")?.GetComponent<PlayerRecord>();
+        if (playerRecord == null || playerRecord.playerList.Count == 0) return;
 
         playerIndex = 0;
         SetupPlayer();
@@ -20,32 +21,40 @@ public class LevelManager : MonoBehaviour
 
     private void SetupPlayer()
     {
-        // Set ball color
-        ball.SetupBall(playerRecord.playerColours[playerIndex]);
+        // Set up ball color
+        if (ball != null && playerIndex < playerRecord.playerColours.Length)
+        {
+            ball.SetupBall(playerRecord.playerColours[playerIndex]);
+        }
 
-        // Set player name text
-        labelPlayerName.text = playerRecord.playerList[playerIndex].name;
-        labelPlayerName.ForceMeshUpdate();  // TMP-safe update
+        // Set player name
+        if (labelPlayerName != null && playerIndex < playerRecord.playerList.Count)
+        {
+            labelPlayerName.ForceMeshUpdate(); // TMP-safe initialization
+            labelPlayerName.text = playerRecord.playerList[playerIndex].name;
+        }
     }
 
     public void NextPlayer(int previousPutts)
     {
-        // Save last player's putts
+        if (playerRecord == null) return;
+
+        // Save previous player's putts
         playerRecord.AddPutts(playerIndex, previousPutts);
 
-        // Next player?
+        // Move to next player
         if (playerIndex < playerRecord.playerList.Count - 1)
         {
             playerIndex++;
-            SetupPlayer();
+            SetupPlayer(); // Correctly sets up ball and player UI
         }
         else
         {
-            // Last player ? next level OR scoreboard
+            // Last player: move to next level or scoreboard
             if (playerRecord.levelIndex >= playerRecord.levels.Length - 1)
             {
                 Debug.Log("Scoreboard");
-                // TODO: SceneManager.LoadScene("Scoreboard");
+                // TODO: Load scoreboard scene here
             }
             else
             {
