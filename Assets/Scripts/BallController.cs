@@ -11,6 +11,7 @@ public class BallController : MonoBehaviour
     public TextMeshProUGUI puttCountLabel;
     public float minHoleTime;
     public Transform startTransform;
+    public LevelManager levelManager;
 
     private LineRenderer line;
     private Rigidbody ball;
@@ -26,6 +27,7 @@ public class BallController : MonoBehaviour
         ball = GetComponent<Rigidbody>();
         ball.maxAngularVelocity = 1000;
         line = GetComponent<LineRenderer>();
+        startTransform.GetComponent<MeshRenderer>().enabled = false;
     }
 
     void Update()
@@ -104,8 +106,7 @@ public class BallController : MonoBehaviour
         holeTime += Time.deltaTime;
         if (holeTime >= minHoleTime)
         {
-            //Player has finished, move to next player
-            Debug.Log("I'm in the hole and it took me " + putts + "putts to get in");
+            levelManager.NextPlayer(putts);
             holeTime = 0;
         }
     }
@@ -134,14 +135,32 @@ public class BallController : MonoBehaviour
 
     public void SetupBall(Color color)
     {
+        // reset position + movement
         transform.position = startTransform.position;
         angle = startTransform.rotation.eulerAngles.y;
         ball.linearVelocity = Vector3.zero;
         ball.angularVelocity = Vector3.zero;
-        GetComponent<MeshRenderer>().material.SetColor("Color", color);
-        line.material.SetColor("Color", color);
+
+        // change ball color (works on child mesh)
+        Renderer r = GetComponentInChildren<Renderer>();
+
+        if (r != null)
+        {
+            if (r.material.HasProperty("_BaseColor"))          // URP Lit
+                r.material.SetColor("_BaseColor", color);
+            else if (r.material.HasProperty("_Color"))         // Standard shader
+                r.material.SetColor("_Color", color);
+            else
+                r.material.color = color;                      // fallback
+        }
+
+        // change line renderer color
+        line.material.color = color;
+
+        // reset putts + UI
         line.enabled = true;
         putts = 0;
         puttCountLabel.text = "0";
     }
+
 }
